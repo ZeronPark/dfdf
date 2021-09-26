@@ -137,7 +137,7 @@ updated_at = datetime.datetime.now()
 top_k_list = get_top_k(top_k)
 target_price_list = get_target_price_list(top_k_list, k_value)
 highest_price = get_highest_price(top_k_list)
-ma_list = get_ma_list(top_k_list, 5)
+ma_list = get_ma_list(top_k_list, 15)
 balance = upbit.get_balance(ticker="KRW")
 hold = []
 highest_price = get_highest_price(top_k_list)
@@ -168,7 +168,7 @@ while True:
             updated_at = now
             top_k_list = get_top_k(top_k)
             target_price_list = get_target_price_list(top_k_list, k_value)
-            ma_list = get_ma_list(top_k_list, 5)
+            ma_list = get_ma_list(top_k_list, 15)
             prev_balance = balance
             balance = upbit.get_balance(ticker="KRW")
             buy_list = []
@@ -181,7 +181,8 @@ while True:
         for ticker in top_k_list:
             # 목표가 없을시 갱신하고 갱신해도 없을시 continue
             if target_price_list[ticker] is None:
-                #target_price_list[ticker] = get_target_price(ticker, k_value)
+                target_price_list[ticker] = get_target_price(ticker, k_value)
+                time.sleep(0.5)
                 if target_price_list[ticker] is None:
                     continue
 
