@@ -4,7 +4,7 @@ import requests
 import datetime
 import telegram
 import traceback
-import schedule
+
 import pyupbit
 
 
@@ -56,11 +56,12 @@ def get_target_price_list(tickers, k):
 
     return target_price_list
 
+
 def get_target_price(ticker, k):
     yesterday = datetime.date.today() - datetime.timedelta(1)
     df = pyupbit.get_ohlcv(ticker, interval="day", count=2)
-    #chart_yesterday = df.index[0].date()
-    if df.index[0].date() != yesterday:
+    chart_yesterday = df.index[0].date()
+    if chart_yesterday != yesterday:
         target_price = None
     else:
         target_price = df.iloc[0]['close'] + (df.iloc[0]['high'] - df.iloc[0]['low']) * k
@@ -136,7 +137,7 @@ updated_at = datetime.datetime.now()
 top_k_list = get_top_k(top_k)
 target_price_list = get_target_price_list(top_k_list, k_value)
 highest_price = get_highest_price(top_k_list)
-ma_list = get_ma_list(top_k_list, 15)
+ma_list = get_ma_list(top_k_list, 5)
 balance = upbit.get_balance(ticker="KRW")
 hold = []
 highest_price = get_highest_price(top_k_list)
@@ -167,7 +168,7 @@ while True:
             updated_at = now
             top_k_list = get_top_k(top_k)
             target_price_list = get_target_price_list(top_k_list, k_value)
-            ma_list = get_ma_list(top_k_list, 15)
+            ma_list = get_ma_list(top_k_list, 5)
             prev_balance = balance
             balance = upbit.get_balance(ticker="KRW")
             buy_list = []
@@ -180,8 +181,7 @@ while True:
         for ticker in top_k_list:
             # 목표가 없을시 갱신하고 갱신해도 없을시 continue
             if target_price_list[ticker] is None:
-                target_price_list[ticker] = get_target_price(ticker, k_value)
-                telegram_send('📢 갱신')
+                #target_price_list[ticker] = get_target_price(ticker, k_value)
                 if target_price_list[ticker] is None:
                     continue
 
@@ -225,8 +225,7 @@ while True:
         # with open("data.json", 'w') as f:
         #     json.dump(data_container, f, indent='\t')
 
-    
     except Exception as e:
-        #print(traceback.format_exc())
         telegram_send(f'🚨 에러 발생\n{traceback.format_exc()}')
+
     time.sleep(tickrate)
